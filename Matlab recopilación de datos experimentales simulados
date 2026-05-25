@@ -1,0 +1,55 @@
+clear; clc; close all;
+
+A0 = 1.0;      % Concentración inicial [A]_0 en mol/L
+k = 0.3;       % Constante de velocidad en horas^-1
+
+% Simulamos mediciones cada media hora durante 6 horas
+Tiempo = (0:0.5:6)'; 
+
+% Modelo matemático integrado (Cálculo Integral): [A]_t = [A]_0 * e^(-kt)
+rng(42); % Diseñamos un error y fijamos semilla para que el error sea replicable
+Ruido = 0.015 * randn(size(Tiempo)); 
+Concentracion = A0 * exp(-k * Tiempo) + Ruido;
+
+% Aseguramos que no existan concentraciones negativas debido al ruido
+Concentracion(Concentracion <= 0) = 0.001; 
+
+% Aplicación del tratamiento matemático (Logaritmo Natural)
+Ln_Concentracion = log(Concentracion);
+
+% VISUALIZACIÓN GRÁFICA COMPUTACIONAL
+
+figure('Name', 'Análisis Cinético de Primer Orden', 'NumberTitle', 'off');
+
+% GRÁFICA 1: DATOS EXPERIMENTALES CRUDOS (CURVA)
+subplot(1, 2, 1);
+plot(Tiempo, Concentracion, 'ro', 'MarkerFaceColor', 'r', 'MarkerSize', 6); hold on;
+% Curva teórica de ajuste
+t_teorico = linspace(0, 6, 100);
+A_teorico = A0 * exp(-k * t_teorico);
+plot(t_teorico, A_teorico, 'b-', 'LineWidth', 2);
+title('4.1 Recopilación de Datos Crudos');
+xlabel('Tiempo (horas)');
+ylabel('Concentración [A] (mol/L)');
+grid on;
+legend('Datos Experimentales', 'Modelo Exponencial Teórico');
+
+% GRÁFICA 2: TRANSFORMACIÓN LOGARÍTMICA (RECTA)
+subplot(1, 2, 2);
+plot(Tiempo, Ln_Concentracion, 'md', 'MarkerFaceColor', 'm', 'MarkerSize', 6); hold on;
+% Ajuste lineal matemático (Regresión lineal)
+coeficientes = polyfit(Tiempo, Ln_Concentracion, 1);
+Ln_teorico = polyval(coeficientes, t_teorico);
+plot(t_teorico, Ln_teorico, 'k--', 'LineWidth', 1.5);
+title('4.2 Tratamiento de Linealización');
+xlabel('Tiempo (horas)');
+ylabel('Logaritmo Natural ln([A])');
+grid on;
+legend('Datos Transformados ln([A])', 'Regresión Lineal (y = mx + b)');
+
+% Mostrar resultados en la ventana de comandos
+fprintf('PARÁMETROS EXTRAÍDOS DE LA GRÁFICA: \n');
+fprintf('Pendiente calculada (m): %.4f (Equivale a -k)\n', coeficientes(1));
+fprintf('Constante de velocidad calculada (k): %.4f horas^-1\n', -coeficientes(1));
+fprintf('Intersección con eje Y (b): %.4f (Equivale a ln([A]_0))\n', coeficientes(2));
+fprintf('Concentración inicial extraída: %.4f mol/L\n', exp(coeficientes(2)));
