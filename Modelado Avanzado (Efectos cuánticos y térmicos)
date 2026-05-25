@@ -1,0 +1,43 @@
+clear; clc; close all;
+
+% Constantes Fisicas
+R = 8.314e-3; % Constante de los gases ideales en kJ/(mol*K)
+
+% Rango de temperaturas simuladas en Kelvin (de 300K a 600K)
+Temperatura = linspace(300, 600, 200); 
+
+% 1. MODELO CLÁSICO (Teoria de Colisiones de Arrhenius)
+Ea_clasica = 7.1;    % Energia de activacion clasica en kJ/mol (Dato del articulo)
+A_clasico = 10.0;    % Factor preexponencial teorico
+k_clasico = A_clasico * exp(-Ea_clasica ./ (R * Temperatura));
+
+% 2. MODELO CUÁNTICO CORREGIDO (Segun Fernandez Nuñez et al., 2000)
+% El articulo demuestra que la energia de activacion "verdadera" es menor (5.7 kJ/mol)
+% pero el factor preexponencial se penaliza por el coeficiente de reflexion (factor 0.53)
+Ea_verdadera = 5.7;  % En kJ/mol
+A_cuantico = A_clasico * 0.53; 
+k_cuantico = A_cuantico * exp(-Ea_verdadera ./ (R * Temperatura));
+
+% =========================================================================
+% GRAFICACIÓN COMPARATIVA MULTIVARIABLE
+% =========================================================================
+figure('Name', 'Seccion 4.4: Efectos Cuanticos', 'NumberTitle', 'off');
+
+% Graficar la constante clasica
+plot(Temperatura, k_clasico, 'r--', 'LineWidth', 2); hold on;
+
+% Graficar la constante con correccion mecanico-cuantica
+plot(Temperatura, k_cuantico, 'g-', 'LineWidth', 2.5);
+
+title('4.4 Influencia Térmica y Desviaciones Cuánticas en la Tasa de Cambio');
+xlabel('Temperatura (Kelvin)');
+ylabel('Constante de Velocidad k (horas^{-1})');
+grid on;
+legend('Modelo Clásico (Arrhenius)', 'Modelo Cuántico Corregido (Barrera Unidimensional)', 'Location', 'NW');
+
+% Mostrar calculos comparativos a temperatura ambiente (300 K)
+idx300 = find(Temperatura >= 300, 1);
+fprintf('=== ANÁLISIS DE EFECTOS CUÁNTICOS A 300 K (Sección 4.4) ===\n');
+fprintf('k Clásica (Arrhenius): %.4f horas^-1\n', k_clasico(idx300));
+fprintf('k Cuántica Corregida:  %.4f horas^-1\n', k_cuantico(idx300));
+fprintf('Diferencia relativa:   %.2f%%\n', (abs(k_cuantico(idx300)-k_clasico(idx300))/k_clasico(idx300))*100);
