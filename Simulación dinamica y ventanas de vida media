@@ -1,0 +1,44 @@
+clear; clc; close all;
+
+% Parametros obtenidos del analisis de linealizacion anterior
+A0 = 1.0;      % Concentración inicial [A]_0 en mol/L
+k = 0.3;       % Constante de velocidad en horas^-1
+
+% Generar un vector de tiempo continuo y suave para la simulacion
+% Usamos 500 puntos para que la curva se vea perfectamente fluida
+t_simulacion = linspace(0, 10, 500); 
+
+% Modelo Matematico Integrado (Solución de la ecuacion diferencial)
+% CORREGIDO: Ambos vectores (t_simulacion y Concentracion) miden exactamente 500 elementos
+Concentracion = A0 * exp(-k * t_simulacion);
+
+% Calculo analitico de la Vida Media usando Matematicas II
+t_vida_media = log(2) / k;
+C_vida_media = A0 / 2;
+
+% =========================================================================
+% GRAFICACIÓN DE LA CURVA DE DECAIMIENTO Y PROYECCIÓN
+% =========================================================================
+figure('Name', 'Seccion 4.3: Ventana de Vida Media', 'NumberTitle', 'off');
+
+% 1. Graficar la curva exponencial continua (Línea azul gruesa)
+plot(t_simulacion, Concentracion, 'b-', 'LineWidth', 2.5); hold on;
+
+% 2. Dibujar lineas de guia para la Vida Media (Lineas punteadas rojas)
+% CORREGIDO: Vectores coordinados perfectamente emparejados para evitar errores de longitud
+plot([0, t_vida_media], [C_vida_media, C_vida_media], 'r--', 'LineWidth', 1.5); % Linea horizontal
+plot([t_vida_media, t_vida_media], [0, C_vida_media], 'r--', 'LineWidth', 1.5); % Linea vertical
+
+% 3. Resaltar el punto exacto de interseccion de la vida media
+plot(t_vida_media, C_vida_media, 'ro', 'MarkerFaceColor', 'r', 'MarkerSize', 8);
+
+% Configuracion estetica de la grafica
+title('4.3 Simulación Dinámica y Ventana de Vida Media');
+xlabel('Tiempo (horas)');
+ylabel('Concentración del Material [A] (mol/L)');
+grid on;
+
+% Modificar las marcas de los ejes (Ticks) para que muestren textualmente los valores de la vida media
+ax = gca;
+ax.XTick = unique(sort([ax.XTick, t_vida_media]));
+ax.YTick = unique(sort)
